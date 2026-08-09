@@ -102,3 +102,10 @@ def should_continue(state: AgentState) -> str:
     if state["revision_number"] > state["max_revisions"]:
         return END
     return "reflect"
+
+
+def is_good_enough(state: AgentState) -> str:
+    """After a critique: stop if the draft cleared the quality bar."""
+    if state["score"] >= state["quality_threshold"]:
+        return END
+    return "research_critique"

@@ -10,7 +10,9 @@ class AgentState(TypedDict):
     """State threaded through every node of the essay graph.
 
     `content` accumulates: nodes return only the snippets they found and
-    LangGraph appends them, so no node mutates the list in place.
+    LangGraph appends them, so no node mutates the list in place. `score` is
+    the grade from the most recent critique; it starts at 0 and is compared
+    against `quality_threshold` to decide whether to stop.
     """
 
     task: str
@@ -20,6 +22,8 @@ class AgentState(TypedDict):
     content: Annotated[List[str], operator.add]
     revision_number: int
     max_revisions: int
+    score: int
+    quality_threshold: int
 
 
 class Queries(BaseModel):
