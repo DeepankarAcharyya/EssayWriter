@@ -121,7 +121,7 @@ EssayWriter/
 │   ├── nodes.py         # EssayNodes: one method per graph node
 │   ├── prompts.py       # system prompt per node
 │   ├── research.py      # SearchBackend protocol + Tavily implementation
-│   └── state.py         # AgentState, Queries
+│   └── state.py         # AgentState, Queries, Critique
 ├── tests/               # pytest suite; fakes injected via build_graph(nodes=...)
 ├── docs/superpowers/    # specs and implementation plans
 ├── pyproject.toml       # project metadata and dependencies

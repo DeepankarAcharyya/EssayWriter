@@ -21,6 +21,15 @@ class Settings:
     quality_threshold: int = DEFAULT_QUALITY_THRESHOLD
     results_per_query: int = DEFAULT_RESULTS_PER_QUERY
 
+    def __post_init__(self) -> None:
+        """Reject a quality threshold outside 1-10 or a negative revision cap."""
+        if not (1 <= self.quality_threshold <= 10):
+            raise ValueError(
+                f"quality_threshold must be between 1 and 10, got {self.quality_threshold}"
+            )
+        if self.max_revisions < 0:
+            raise ValueError(f"max_revisions must be >= 0, got {self.max_revisions}")
+
     @classmethod
     def from_env(cls, **overrides: object) -> "Settings":
         """Load settings from `.env` / the environment, then apply overrides."""

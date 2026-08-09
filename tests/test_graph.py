@@ -1,5 +1,7 @@
 """End-to-end loop behaviour, driven entirely by fakes."""
 
+import pytest
+
 from essaywriter.cli import recursion_limit
 from essaywriter.graph import build_graph
 from essaywriter.nodes import EssayNodes
@@ -67,6 +69,31 @@ def test_the_cap_stops_a_draft_that_never_improves():
     assert final["score"] == 4
 
 
-def test_recursion_limit_clears_a_full_run_at_the_cap():
-    # plan + research_plan, then generate + reflect + research_critique per revision.
-    assert recursion_limit(20) >= 2 + 3 * 20
+@pytest.mark.parametrize(
+    "max_revisions, expected_revision_number",
+    [
+        (0, 2),  # should_continue sends the first draft straight to END
+        (1, 2),  # one generate still overshoots the cap immediately after
+        (20, 21),  # 20 generates, 19 reflects, 19 research_critiques
+    ],
+)
+def test_a_full_run_at_the_cap_fits_inside_the_recursion_limit(
+    max_revisions, expected_revision_number
+):
+    model = FakeModel(
+        text_replies=["outline", "draft"],
+        critiques=[Critique(score=4, feedback="weak")],
+    )
+    graph = build_graph(nodes=EssayNodes(model=model, search=FakeSearch()))
+    final = graph.invoke(
+        {
+            "task": "t",
+            "content": [],
+            "revision_number": 1,
+            "max_revisions": max_revisions,
+            "quality_threshold": 8,
+            "score": 0,
+        },
+        {"recursion_limit": recursion_limit(max_revisions)},
+    )
+    assert final["revision_number"] == expected_revision_number

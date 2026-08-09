@@ -26,6 +26,10 @@ def test_should_continue_stops_past_the_cap():
     assert should_continue({"revision_number": 21, "max_revisions": 20}) == END
 
 
+def test_should_continue_critiques_at_the_cap_boundary():
+    assert should_continue({"revision_number": 20, "max_revisions": 20}) == "reflect"
+
+
 def test_is_good_enough_accepts_a_score_at_the_threshold():
     assert is_good_enough({"score": 8, "quality_threshold": 8}) == END
 

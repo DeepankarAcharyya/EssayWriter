@@ -19,6 +19,10 @@ def build_graph(
 
     Pass `nodes` to inject a model/search backend (tests do this); otherwise
     they are constructed from `settings`, defaulting to the environment.
+    The initial state passed to `invoke`/`stream` must set `task`, `content`
+    (typically `[]`), `revision_number`, `max_revisions`, `quality_threshold`,
+    and `score` (typically `0`); `is_good_enough` and `should_continue` read
+    them with bracket access and raise `KeyError` if any are missing.
     """
     if nodes is None:
         nodes = EssayNodes.from_settings(settings or Settings.from_env())

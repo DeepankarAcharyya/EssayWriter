@@ -33,7 +33,7 @@ def parse_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
         "--quality-threshold",
         type=int,
         default=None,
-        help="Score (1-10) at which the draft is accepted (default: 8).",
+        help="Score (1-10) at which the draft is accepted (default: from env, else 8).",
     )
     parser.add_argument(
         "--model",
@@ -60,8 +60,8 @@ def parse_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
 
 
 def recursion_limit(max_revisions: int) -> int:
-    """Supersteps a full run needs: plan, research, then 3 nodes per revision."""
-    return 2 + 3 * max_revisions + 1
+    """Floor for LangGraph's limit: plan + research_plan + N generates + (N-1) reflects + (N-1) research_critiques, plus headroom."""
+    return max(4, 3 * max_revisions + 3)
 
 
 def _progress(node: str, update: dict, settings: Settings) -> str:
@@ -109,13 +109,13 @@ def write_essay(
 
 def main(argv: Optional[Sequence[str]] = None) -> int:
     args = parse_args(argv)
-    settings = Settings.from_env(
-        model=args.model,
-        max_revisions=args.max_revisions,
-        quality_threshold=args.quality_threshold,
-    )
 
     try:
+        settings = Settings.from_env(
+            model=args.model,
+            max_revisions=args.max_revisions,
+            quality_threshold=args.quality_threshold,
+        )
         essay = write_essay(
             topic=args.topic,
             settings=settings,
