@@ -27,7 +27,13 @@ def parse_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
         "--max-revisions",
         type=int,
         default=None,
-        help="How many revision loops to allow (default: from env, else 2).",
+        help="How many revision loops to allow (default: from env, else 20).",
+    )
+    parser.add_argument(
+        "--quality-threshold",
+        type=int,
+        default=None,
+        help="Score (1-10) at which the draft is accepted (default: 8).",
     )
     parser.add_argument(
         "--model",
@@ -53,6 +59,21 @@ def parse_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
     return parser.parse_args(argv)
 
 
+def recursion_limit(max_revisions: int) -> int:
+    """Supersteps a full run needs: plan, research, then 3 nodes per revision."""
+    return 2 + 3 * max_revisions + 1
+
+
+def _progress(node: str, update: dict, settings: Settings) -> str:
+    """One stderr line per node, carrying the grade when there is one."""
+    if "score" in update:
+        return (
+            f"[{node}] score {update['score']}/10 "
+            f"(target {settings.quality_threshold})"
+        )
+    return f"[{node}]"
+
+
 def write_essay(
     topic: str,
     settings: Settings,
@@ -68,14 +89,19 @@ def write_essay(
             "content": [],
             "revision_number": 1,
             "max_revisions": settings.max_revisions,
+            "quality_threshold": settings.quality_threshold,
+            "score": 0,
         }
-        config = {"configurable": {"thread_id": thread_id}}
+        config = {
+            "configurable": {"thread_id": thread_id},
+            "recursion_limit": recursion_limit(settings.max_revisions),
+        }
 
         draft = ""
         for step in graph.stream(initial_state, config):
             for node, update in step.items():
                 if verbose:
-                    print(f"[{node}]", file=sys.stderr)
+                    print(_progress(node, update, settings), file=sys.stderr)
                 if "draft" in update:
                     draft = update["draft"]
         return draft
@@ -84,7 +110,9 @@ def write_essay(
 def main(argv: Optional[Sequence[str]] = None) -> int:
     args = parse_args(argv)
     settings = Settings.from_env(
-        model=args.model, max_revisions=args.max_revisions
+        model=args.model,
+        max_revisions=args.max_revisions,
+        quality_threshold=args.quality_threshold,
     )
 
     try:

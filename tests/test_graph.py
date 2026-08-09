@@ -1,5 +1,6 @@
 """End-to-end loop behaviour, driven entirely by fakes."""
 
+from essaywriter.cli import recursion_limit
 from essaywriter.graph import build_graph
 from essaywriter.nodes import EssayNodes
 from essaywriter.state import Critique
@@ -64,3 +65,8 @@ def test_the_cap_stops_a_draft_that_never_improves():
 
     assert final["revision_number"] == 4  # three drafts written
     assert final["score"] == 4
+
+
+def test_recursion_limit_clears_a_full_run_at_the_cap():
+    # plan + research_plan, then generate + reflect + research_critique per revision.
+    assert recursion_limit(20) >= 2 + 3 * 20

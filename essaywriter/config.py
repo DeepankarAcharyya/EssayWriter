@@ -6,7 +6,8 @@ from dataclasses import dataclass
 from dotenv import load_dotenv
 
 DEFAULT_MODEL = "anthropic:claude-sonnet-4-5"
-DEFAULT_MAX_REVISIONS = 2
+DEFAULT_MAX_REVISIONS = 20
+DEFAULT_QUALITY_THRESHOLD = 8
 DEFAULT_RESULTS_PER_QUERY = 2
 
 
@@ -17,6 +18,7 @@ class Settings:
     model: str = DEFAULT_MODEL
     tavily_api_key: str | None = None
     max_revisions: int = DEFAULT_MAX_REVISIONS
+    quality_threshold: int = DEFAULT_QUALITY_THRESHOLD
     results_per_query: int = DEFAULT_RESULTS_PER_QUERY
 
     @classmethod
@@ -28,6 +30,11 @@ class Settings:
             "tavily_api_key": os.environ.get("TAVILY_API_KEY"),
             "max_revisions": int(
                 os.environ.get("ESSAYWRITER_MAX_REVISIONS", DEFAULT_MAX_REVISIONS)
+            ),
+            "quality_threshold": int(
+                os.environ.get(
+                    "ESSAYWRITER_QUALITY_THRESHOLD", DEFAULT_QUALITY_THRESHOLD
+                )
             ),
             "results_per_query": int(
                 os.environ.get(
