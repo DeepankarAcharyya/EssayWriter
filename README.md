@@ -110,7 +110,8 @@ Missing credentials or bad config exit with status `2`.
 
 Every run also writes `output/<topic>-<timestamp>.md` — the topic lowercased and
 hyphenated, with a local-time stamp — so runs are kept without having to name files by
-hand. `output/` is gitignored.
+hand. `output/` is gitignored, and is relative to the directory you run the command
+from, not the repo root.
 
 ## Project layout
 

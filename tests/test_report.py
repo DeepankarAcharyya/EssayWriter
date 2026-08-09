@@ -1,6 +1,7 @@
 """Naming and writing the per-run report file."""
 
 from datetime import datetime
+from pathlib import Path
 
 from essaywriter.report import report_path, slugify, write_report
 
@@ -44,7 +45,7 @@ def test_report_path_names_the_file_after_the_topic_and_time(tmp_path):
 
 
 def test_report_path_defaults_to_the_output_directory():
-    assert report_path("Open source", WHEN).parent.name == "output"
+    assert report_path("Open source", WHEN).parent == Path("output")
 
 
 def test_write_report_creates_the_directory_and_writes_the_essay(tmp_path):
@@ -53,12 +54,10 @@ def test_write_report_creates_the_directory_and_writes_the_essay(tmp_path):
     path = write_report("Open source", "# An essay\n", WHEN, directory=directory)
 
     assert path == directory / "open-source-20260809-153042.md"
-    assert path.read_text() == "# An essay\n"
+    assert path.read_text(encoding="utf-8") == "# An essay\n"
 
 
 def test_write_report_reuses_an_existing_directory(tmp_path):
-    tmp_path.mkdir(exist_ok=True)
-
     path = write_report("Open source", "body", WHEN, directory=tmp_path)
 
-    assert path.read_text() == "body"
+    assert path.read_text(encoding="utf-8") == "body"

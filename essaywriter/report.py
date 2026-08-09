@@ -35,5 +35,5 @@ def write_report(
     """Write the essay to its report path, creating the directory, and return it."""
     path = report_path(topic, when, directory)
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(essay)
+    path.write_text(essay, encoding="utf-8")
     return path

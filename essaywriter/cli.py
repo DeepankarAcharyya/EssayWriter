@@ -129,16 +129,23 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         print(f"error: {exc}", file=sys.stderr)
         return 2
 
-    report = write_report(args.topic, essay, datetime.now())
-    if not args.quiet:
-        print(f"wrote {report}", file=sys.stderr)
-
     if args.output:
-        args.output.write_text(essay)
+        args.output.write_text(essay, encoding="utf-8")
         if not args.quiet:
             print(f"wrote {args.output}", file=sys.stderr)
     else:
         print(essay)
+
+    if not essay:
+        print("warning: empty essay, not archiving a report", file=sys.stderr)
+    else:
+        try:
+            report = write_report(args.topic, essay, datetime.now())
+        except OSError as exc:
+            print(f"warning: could not write report: {exc}", file=sys.stderr)
+        else:
+            if not args.quiet:
+                print(f"wrote {report}", file=sys.stderr)
     return 0
 
 
