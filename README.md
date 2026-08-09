@@ -2,7 +2,7 @@
 
 An essay-writing agent — a compact version of an AI researcher.
 
-Given a topic, the agent plans an essay, researches it, drafts it, critiques its own draft, researches the gaps the critique exposes, and revises. It loops until the revision limit is hit.
+Given a topic, the agent plans an essay, researches it, drafts it, critiques its own draft, researches the gaps the critique exposes, and revises. It loops until the critique grades the draft at or above the quality bar, or the revision cap is hit.
 
 > **Status:** the graph below is implemented and runnable.
 
@@ -23,12 +23,15 @@ The agent is a [LangGraph](https://langchain-ai.github.io/langgraph/) state mach
         │ generate │◄──────────────┐  write / rewrite the draft
         └────┬─────┘               │
              ▼                     │
-         ╱ done? ╲──── yes ──► END │
+      ╱ hit the cap? ╲─── yes ──► END
              │ no                  │
              ▼                     │
         ┌──────────┐               │
-        │ reflect  │  critique the draft
+        │ reflect  │  grade the draft 1-10
         └────┬─────┘               │
+             ▼                     │
+     ╱ score >= bar? ╲─── yes ──► END
+             │ no                  │
              ▼                     │
   ┌────────────────────┐           │
   │ research_critique  │───────────┘  gather sources answering the critique
@@ -40,10 +43,13 @@ The agent is a [LangGraph](https://langchain-ai.github.io/langgraph/) state mach
 | `plan` | Turn the topic into a section-by-section outline. |
 | `research_plan` | Turn the outline into search queries; collect the results. |
 | `generate` | Write (or rewrite) the draft from the outline, research, and any critique. |
-| `reflect` | Critique the draft — grade it and list concrete gaps. |
+| `reflect` | Grade the draft 1–10 and list concrete gaps. |
 | `research_critique` | Search for what the critique says is missing. |
 
-After `generate`, the agent stops if the revision limit is reached; otherwise it goes to `reflect` and loops back through `generate`.
+After `generate` the agent stops if the revision cap is reached. Otherwise `reflect`
+grades the draft from 1 to 10; a score at or above the quality threshold ends the run,
+and anything lower goes to `research_critique` and back around. The cap defaults to 20 —
+it is a backstop, not a target.
 
 ## Requirements
 
@@ -73,7 +79,8 @@ Optional environment overrides:
 | Variable | Default |
 | --- | --- |
 | `ESSAYWRITER_MODEL` | `anthropic:claude-sonnet-4-5` |
-| `ESSAYWRITER_MAX_REVISIONS` | `2` |
+| `ESSAYWRITER_QUALITY_THRESHOLD` | `8` |
+| `ESSAYWRITER_MAX_REVISIONS` | `20` |
 | `ESSAYWRITER_RESULTS_PER_QUERY` | `2` |
 
 ## Usage
@@ -92,6 +99,7 @@ Installing the project also exposes an `essaywriter` console script, so
 | --- | --- |
 | `-o`, `--output PATH` | Write the essay to a file instead of stdout. |
 | `--max-revisions N` | Revision loops to allow. Overrides the env default. |
+| `--quality-threshold N` | Score (1-10) at which the draft is accepted. |
 | `--model NAME` | Chat model, e.g. `anthropic:claude-sonnet-4-5`. |
 | `--checkpoint-db PATH` | SQLite file for checkpoints (default `:memory:`). |
 | `--thread-id ID` | Checkpoint thread; reuse it to resume a run (default `1`). |
@@ -114,6 +122,8 @@ EssayWriter/
 │   ├── prompts.py       # system prompt per node
 │   ├── research.py      # SearchBackend protocol + Tavily implementation
 │   └── state.py         # AgentState, Queries
+├── tests/               # pytest suite; fakes injected via build_graph(nodes=...)
+├── docs/superpowers/    # specs and implementation plans
 ├── pyproject.toml       # project metadata and dependencies
 ├── uv.lock              # locked dependency versions
 ├── .python-version      # 3.11
@@ -131,8 +141,8 @@ EssayWriter/
 - [x] Wire up a search backend for the research nodes
 - [x] Add a CLI that takes a topic and writes the essay to a file
 - [x] Checkpointing so long runs can resume
-- [ ] Test suite covering the loop and the revision cutoff
-- [ ] Quality-based stop condition, not just a revision cap
+- [x] Test suite covering the loop and the revision cutoff
+- [x] Quality-based stop condition, not just a revision cap
 
 ## License
 
