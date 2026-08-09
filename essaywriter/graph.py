@@ -6,7 +6,7 @@ from langgraph.checkpoint.base import BaseCheckpointSaver
 from langgraph.graph import END, START, StateGraph
 
 from essaywriter.config import Settings
-from essaywriter.nodes import EssayNodes, should_continue
+from essaywriter.nodes import EssayNodes, is_good_enough, should_continue
 from essaywriter.state import AgentState
 
 
@@ -38,7 +38,11 @@ def build_graph(
         should_continue,
         {END: END, "reflect": "reflect"},
     )
-    graph.add_edge("reflect", "research_critique")
+    graph.add_conditional_edges(
+        "reflect",
+        is_good_enough,
+        {END: END, "research_critique": "research_critique"},
+    )
     graph.add_edge("research_critique", "generate")
 
     return graph.compile(checkpointer=checkpointer)
