@@ -21,7 +21,7 @@ from essaywriter.prompts import (
     WRITER_PROMPT,
 )
 from essaywriter.research import SearchBackend, TavilySearch
-from essaywriter.state import AgentState, Queries
+from essaywriter.state import AgentState, Critique, Queries
 
 
 class EssayNodes:
@@ -72,13 +72,13 @@ class EssayNodes:
 
     def reflect(self, state: AgentState) -> Dict[str, Any]:
         """Critique the draft — grade it and list concrete gaps."""
-        response = self._model.invoke(
+        critique = self._model.with_structured_output(Critique).invoke(
             [
                 SystemMessage(content=REFLECTION_PROMPT),
                 HumanMessage(content=state["draft"]),
             ]
         )
-        return {"critique": response.content}
+        return {"critique": critique.feedback, "score": critique.score}
 
     def research_critique(self, state: AgentState) -> Dict[str, Any]:
         """Search for what the critique says is missing."""

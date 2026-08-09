@@ -15,7 +15,19 @@ Utilize all the information below as needed:
 
 REFLECTION_PROMPT = """You are a teacher grading an essay submission. \
 Generate critique and recommendations for the user's submission. \
-Provide detailed recommendations, including requests for length, depth, style, etc."""
+Provide detailed recommendations, including requests for length, depth, style, etc.
+
+Also grade the essay from 1 to 10 against this rubric:
+
+- 1-3: incoherent, off-topic, or unsupported by evidence.
+- 4-5: covers the topic but is thin, generic, or poorly structured.
+- 6-7: solid and well-structured, with real gaps in evidence, depth or style.
+- 8-9: publishable — well-argued, well-evidenced, and cleanly written. Any \
+remaining changes are polish.
+- 10: nothing left to improve.
+
+Grade the draft in front of you, not the essay it could become. Do not inflate \
+the score to be encouraging."""
 
 RESEARCH_PLAN_PROMPT = """You are a researcher charged with providing information that can \
 be used when writing the following essay. Generate a list of search queries that will gather \
