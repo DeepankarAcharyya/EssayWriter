@@ -223,5 +223,4 @@ __marimo__/
 # Superpowers plans
 docs/superpowers/plans/
 
-# Run reports
-output/
+# Run reports are committed as samples

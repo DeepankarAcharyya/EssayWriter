@@ -110,8 +110,8 @@ Missing credentials or bad config exit with status `2`.
 
 Every run also writes `output/<topic>-<timestamp>.md` — the topic lowercased and
 hyphenated, with a local-time stamp — so runs are kept without having to name files by
-hand. `output/` is gitignored, and is relative to the directory you run the command
-from, not the repo root.
+hand. `output/` is relative to the directory you run the command from, not the repo
+root; the copy committed here holds sample runs.
 
 ## Project layout
 
@@ -128,7 +128,7 @@ EssayWriter/
 │   ├── research.py      # SearchBackend protocol + Tavily implementation
 │   └── state.py         # AgentState, Queries, Critique
 ├── tests/               # pytest suite; fakes injected via build_graph(nodes=...)
-├── output/              # per-run reports (gitignored)
+├── output/              # per-run reports; sample runs are committed
 ├── docs/superpowers/    # specs and implementation plans
 ├── pyproject.toml       # project metadata and dependencies
 ├── uv.lock              # locked dependency versions
