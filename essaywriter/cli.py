@@ -2,6 +2,7 @@
 
 import argparse
 import sys
+from datetime import datetime
 from pathlib import Path
 from typing import Optional, Sequence
 
@@ -9,6 +10,7 @@ from langgraph.checkpoint.sqlite import SqliteSaver
 
 from essaywriter.config import Settings
 from essaywriter.graph import build_graph
+from essaywriter.report import write_report
 
 
 def parse_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
@@ -126,6 +128,10 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     except ValueError as exc:  # missing credentials, bad config
         print(f"error: {exc}", file=sys.stderr)
         return 2
+
+    report = write_report(args.topic, essay, datetime.now())
+    if not args.quiet:
+        print(f"wrote {report}", file=sys.stderr)
 
     if args.output:
         args.output.write_text(essay)

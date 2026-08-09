@@ -222,3 +222,6 @@ __marimo__/
 
 # Superpowers plans
 docs/superpowers/plans/
+
+# Run reports
+output/
