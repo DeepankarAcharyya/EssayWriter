@@ -28,3 +28,19 @@ class Queries(BaseModel):
     queries: List[str] = Field(
         description="A list of search queries to gather relevant information."
     )
+
+
+class Critique(BaseModel):
+    """A graded critique of a draft."""
+
+    score: int = Field(
+        ge=1,
+        le=10,
+        description=(
+            "Quality of the draft on a 1-10 scale, where 8 or above is "
+            "publishable."
+        ),
+    )
+    feedback: str = Field(
+        description="Concrete, actionable revisions the writer should make."
+    )
