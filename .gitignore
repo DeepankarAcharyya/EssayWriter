@@ -219,3 +219,6 @@ __marimo__/
 
 # Worktrees
 .worktrees/
+
+# Superpowers plans
+docs/superpowers/plans/
